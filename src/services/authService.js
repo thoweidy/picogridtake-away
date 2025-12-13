@@ -21,7 +21,7 @@ async function login(username, password) {
             username: employee.username,
             role: employee.role
         },
-        process.env.JWT_SECRET, {expiresIn: process.env.JWT_EXPIRE || '24h'}
+        process.env.JWT_SECRET, {expiresIn: process.env.JWT_EXPIRE_IN || '24h'}
     )
 
     return {

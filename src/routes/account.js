@@ -48,8 +48,11 @@ router.put('/transfer', async (req, res) => {
     }
     try {
         const results = await transferService.accountTransfer(fromAccountId, toAccountId, transferAmount)
-        return res.status(200).json(results)
+        return res.status(201).json(results)
     } catch (error) {
+        if (error.message === "Source account does not exist" || error.message === "Destination account does not exist") {
+            return res.status(404).json({ errorMessage: error.message })
+        }
         return res.status(400).json({ errorMessage: error.message })
     }
 })

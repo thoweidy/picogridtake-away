@@ -24,10 +24,7 @@ async function accountTransfer(fromAccountId, toAccountId, amount) {
         throw new Error("Destination account does not exist")
     }
 
-    // Check if source account has sufficient balance
-    if (fromAccount.balance < amount) { 
-        throw new Error("Insufficient funds")
-    }
+    
 
     // Prevent transferring to the same account
     if (fromAccountId === toAccountId) {
@@ -36,6 +33,10 @@ async function accountTransfer(fromAccountId, toAccountId, amount) {
 
     // Use Prisma transaction to ensure atomicity
     const result = await prisma.$transaction(async (tx) => {
+        // Check if source account has sufficient balance
+    if (fromAccount.balance < amount) { 
+        throw new Error("Insufficient funds")
+    }
         // Update source account balance
         const updatedFromAccount = await tx.account.update({
             where: { id: fromAccountId },

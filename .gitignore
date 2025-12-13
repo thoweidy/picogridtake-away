@@ -1,5 +1,7 @@
 # Implementation Plan (not for submission)
 IMPLEMENTATION_PLAN.md
+IMPLEMENTATION_CHECKLIST.md
+
 
 # Environment variables
 .env
@@ -44,3 +46,7 @@ coverage/
 dist/
 build/
 
+
+/generated/prisma
+
+/generated/prisma

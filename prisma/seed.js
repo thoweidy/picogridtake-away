@@ -3,37 +3,61 @@ const bcrypt = require('bcrypt');
 
 const prisma = new PrismaClient();
 async function main() {
-    // seeding in customer data
+    // Seeding customer data (idempotent - check if exists before creating)
     console.log('Starting customers seed process ... ')
-    await prisma.customer.createMany({
-        data:[
-            {name: 'Arisha Barron'},
-            {name: 'Branden Gibson'},
-            {name: 'Rhonda Church'},
-            {name: 'Georgina Hazel'}
-        ]
-    })
+    const customers = [
+        {name: 'Arisha Barron'},
+        {name: 'Branden Gibson'},
+        {name: 'Rhonda Church'},
+        {name: 'Georgina Hazel'}
+    ];
+
+    for (const customer of customers) {
+        const existingCustomer = await prisma.customer.findFirst({
+            where: { name: customer.name }
+        });
+        if (!existingCustomer) {
+            await prisma.customer.create({
+                data: customer
+            });
+        }
+    }
     console.log("Customers data seeded successfully")
 
-    // Seeding in Employees Data
+    // Seeding in Employees Data (idempotent - use upsert with unique username)
     const hashedPassword = await bcrypt.hash('password123', 10)
     console.log("Starting employees seeding process ....")
-    await prisma.employee.createMany({
-        data:[
-            {
-                username: 'employee1',
-                password: hashedPassword,
-                name: "Jacques Cousteau",
-                role: "teller"
-            },
-            {
-                username: "manager1",
-                password: hashedPassword,
-                name: "Poseidon no last name",
-                role: "manager"
-            }
-        ]
-    })
+    
+    await prisma.employee.upsert({
+        where: { username: 'employee1' },
+        update: {
+            password: hashedPassword, // Update password in case it changed
+            name: "Jacques Cousteau",
+            role: "teller"
+        },
+        create: {
+            username: 'employee1',
+            password: hashedPassword,
+            name: "Jacques Cousteau",
+            role: "teller"
+        }
+    });
+
+    await prisma.employee.upsert({
+        where: { username: 'manager1' },
+        update: {
+            password: hashedPassword, // Update password in case it changed
+            name: "Poseidon no last name",
+            role: "manager"
+        },
+        create: {
+            username: "manager1",
+            password: hashedPassword,
+            name: "Poseidon no last name",
+            role: "manager"
+        }
+    });
+    
     console.log("Employees data seeded successfully")
 }
 

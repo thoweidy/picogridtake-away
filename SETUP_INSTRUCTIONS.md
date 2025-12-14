@@ -21,7 +21,7 @@
    npm run db:seed
    ```
 
-   > **Note:** If this is your first time setting up the project, the `db:seed` script might run automatically after `db:migrate` completes. You can skip the `db:seed` command if you see seeding messages during migration.
+   > **Note:** The seed script is configured in `prisma.config.ts` and will run automatically during `db:migrate` on first-time setup. You can skip the `db:seed` command if you see seeding messages (customers and employees being seeded) during migration.
 
 4. **Start the server:**
    ```bash

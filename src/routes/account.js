@@ -1,8 +1,12 @@
 const express = require('express')
 const accountService = require('../services/accountService')
 const transferService = require('../services/transferService')
+const authenticate = require('../middleware/authenticates')
 
 const router = express.Router()
+
+// Apply authentication middleware to all account routes
+router.use(authenticate)
 
 router.put('/createaccount', async (req, res) => {
     const { customerId, initialDeposit } = req.body

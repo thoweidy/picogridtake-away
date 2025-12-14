@@ -6,37 +6,38 @@ async function accountTransfer(fromAccountId, toAccountId, amount) {
         throw new Error("Transfer amount must be positive and more than Zero")
     }
 
-    // Check if source account exists
-    const fromAccount = await prisma.account.findUnique({
-        where: { id: fromAccountId }
-    })
-    
-    if (!fromAccount) { 
-        throw new Error("Source account does not exist")
-    }
-
-    // Check if destination account exists
-    const toAccount = await prisma.account.findUnique({
-        where: { id: toAccountId }
-    })
-    
-    if (!toAccount) { 
-        throw new Error("Destination account does not exist")
-    }
-
-    
-
     // Prevent transferring to the same account
     if (fromAccountId === toAccountId) {
         throw new Error("Cannot transfer to the same account")
     }
 
     // Use Prisma transaction to ensure atomicity
+    // All account existence checks and balance validation happen INSIDE the transaction
+    // to prevent race conditions where concurrent transfers could cause overdrafts
     const result = await prisma.$transaction(async (tx) => {
-        // Check if source account has sufficient balance
-    if (fromAccount.balance < amount) { 
-        throw new Error("Insufficient funds")
-    }
+        // Check if source account exists and fetch current balance within transaction
+        const fromAccount = await tx.account.findUnique({
+            where: { id: fromAccountId }
+        })
+        
+        if (!fromAccount) { 
+            throw new Error("Source account does not exist")
+        }
+
+        // Check if destination account exists within transaction
+        const toAccount = await tx.account.findUnique({
+            where: { id: toAccountId }
+        })
+        
+        if (!toAccount) { 
+            throw new Error("Destination account does not exist")
+        }
+
+        // Check balance INSIDE transaction to prevent race conditions
+        // This ensures the balance check and update are atomic
+        if (fromAccount.balance < amount) { 
+            throw new Error("Insufficient funds")
+        }
         // Update source account balance
         const updatedFromAccount = await tx.account.update({
             where: { id: fromAccountId },

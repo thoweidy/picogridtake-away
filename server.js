@@ -1,5 +1,14 @@
 require('dotenv').config();
 
+// Validate environment variables before starting the server
+const { validateEnvVars } = require('./src/config/envValidation');
+try {
+  validateEnvVars();
+} catch (error) {
+  console.error(error.message);
+  process.exit(1);
+}
+
 const express = require('express')
 const authRoutes = require('./src/routes/auth')
 const accountRoutes = require('./src/routes/account')

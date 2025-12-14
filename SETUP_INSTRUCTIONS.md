@@ -2,16 +2,20 @@
 
 ## API Documentation
 
-Interactive API documentation is available when the server is running:
+Beautiful, interactive API documentation powered by Scalar is available when the server is running:
 
 **🔗 [http://localhost:3000/api-docs](http://localhost:3000/api-docs)**
 
 The documentation provides:
+- **Elegant, modern UI** with purple theme
+- **Interactive "Try it out" feature** - Test endpoints directly in the browser
 - Complete API reference for all endpoints
-- Interactive "Try it out" feature to test endpoints directly
-- Request/response examples
+- Real-time request/response examples
+- Code samples in multiple languages (cURL, JavaScript, Python, etc.)
+- Authentication support with JWT tokens
 - Error response documentation
 - Schema definitions
+- Dark mode support
 
 ### API Endpoints
 

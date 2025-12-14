@@ -38,5 +38,6 @@ app.use('/api/transfers', transferRoutes)
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`)
-    console.log(`API Documentation available at http://localhost:${PORT}/api-docs`)
+    console.log(`📚 API Documentation available at http://localhost:${PORT}/api-docs`)
+    console.log(`   Interactive "Try It Out" feature enabled! 🚀`)
 })

@@ -4,7 +4,7 @@ const swaggerSpec = {
     info: {
       title: 'Banking API',
       version: '1.2.0',
-      description: 'Internal API for a fake financial institution. This API allows bank employees to manage customer accounts, process transfers, and retrieve account information.\n\n## ⚠️ Important: Authentication Required\n\n**Most endpoints require authentication. You MUST obtain a token before attempting to test protected routes.**\n\n### How to Authenticate:\n\n1. **Get a Token First**: Use the `/api/auth/login` endpoint (below) to authenticate and receive a JWT token\n   - Use credentials: `username: "employee1"`, `password: "password123"` (or other seeded employee credentials)\n   - Copy the `token` value from the response\n\n2. **Authorize in Swagger**: Click the "Authorize" button (🔒) at the top right of this page\n   - Enter your token (you can use just the token, or `Bearer <token>`)\n   - Click "Authorize" to save it\n\n3. **Test Protected Routes**: Once authorized, the lock icons will turn closed/black, and you can successfully test protected endpoints\n\n⚠️ **Note**: Attempting to test protected routes without a token will result in `401 Unauthorized` errors.',
+      description: 'Internal API for a fake financial institution. This API allows bank employees to manage customer accounts, process transfers, and retrieve account information.\n\n## 🔐 Authentication\n\nMost endpoints require authentication via JWT token. Use the `/api/auth/login` endpoint to obtain a token, then use the **"Try It Out"** feature below to test endpoints interactively.',
       contact: {
         name: 'Tamer Howeidy',
       },

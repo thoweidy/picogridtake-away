@@ -23,14 +23,21 @@
 
    > **Note:** The seed script is configured in `prisma.config.ts` and will run automatically during `db:migrate` on first-time setup. You can skip the `db:seed` command if you see seeding messages (customers and employees being seeded) during migration.
 
-4. **Start the server:**
+4. **(Optional) View the database:**
+   You can use Prisma Studio to view and interact with your database data:
+   ```bash
+   npm run db:studio
+   ```
+   This will open Prisma Studio in your browser at `http://localhost:5555`, where you can browse all tables and data.
+
+5. **Start the server:**
    ```bash
    npm start
    # or for development with auto-reload:
    npm run dev
    ```
 
-5. **Access the API Documentation:**
+6. **Access the API Documentation:**
    - Open your browser to: http://localhost:3000/api-docs
    - Explore all available endpoints
    - Use the "Try it out" feature to test the API directly

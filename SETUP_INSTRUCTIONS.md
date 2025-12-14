@@ -3,13 +3,12 @@
 ## Quick Start
 
 1. **Create `.env` file:**
-   Create a `.env` file in the root directory with the following content:
-   ```env
-   DATABASE_URL="file:./dev.db"
-   JWT_SECRET="your-secret-key-change-in-production"
-   JWT_EXPIRE_IN="24h"
-   PORT=3000
+   Copy the example environment file to create your `.env` file:
+   ```bash
+   cp .env.example .env
    ```
+
+   You can edit the `.env` file to customize values if needed (e.g., change `JWT_SECRET` to a secure secret key, or change `PORT` to match your hosting environment).
 
 2. **Install dependencies:**
    ```bash

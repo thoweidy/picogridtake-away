@@ -21,6 +21,8 @@
    npm run db:seed
    ```
 
+   > **Note:** If this is your first time setting up the project, the `db:seed` script might run automatically after `db:migrate` completes. You can skip the `db:seed` command if you see seeding messages during migration.
+
 4. **Start the server:**
    ```bash
    npm start

@@ -9,6 +9,10 @@ router.use('/', swaggerUi.serve);
 router.get('/', swaggerUi.setup(swaggerSpec, {
   customCss: '.swagger-ui .topbar { display: none }',
   customSiteTitle: 'Banking API Documentation',
+  swaggerOptions: {
+    persistAuthorization: true, // Persist auth across page refreshes
+    displayRequestDuration: true,
+  },
 }));
 
 module.exports = router;

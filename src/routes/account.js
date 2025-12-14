@@ -8,7 +8,8 @@ const router = express.Router()
 // Apply authentication middleware to all account routes
 router.use(authenticate)
 
-router.put('/createaccount', async (req, res) => {
+// POST /api/accounts - Create a new bank account
+router.post('/', async (req, res) => {
     const { customerId, initialDeposit } = req.body
 
     if (!customerId || !initialDeposit) {
@@ -26,15 +27,20 @@ router.put('/createaccount', async (req, res) => {
     }
 })
 
-router.post('/getbalance', async (req, res) => {
-    const { accountId } = req.body
+// GET /api/accounts/:id - Get account balance
+router.get('/:id', async (req, res) => {
+    const { id } = req.params
 
-    if (!accountId) {
+    if (!id) {
         return res.status(400).json({ errorMessage: "accountId is required" })
     }
 
     try {
-        const results = await accountService.getBalance(accountId)
+        const accountIdNum = parseInt(id)
+        if (isNaN(accountIdNum)) {
+            return res.status(400).json({ errorMessage: "accountId must be a valid number" })
+        }
+        const results = await accountService.getBalance(accountIdNum)
         return res.status(200).json(results)
     } catch (error) {
         if (error.message === "Account not found") {
@@ -44,32 +50,16 @@ router.post('/getbalance', async (req, res) => {
     }
 })
 
-router.put('/transfer', async (req, res) => {
-    const { fromAccountId, toAccountId, transferAmount } = req.body
+// GET /api/accounts/:id/transfers - Get transfer history for an account
+router.get('/:id/transfers', async (req, res) => {
+    const { id } = req.params
 
-    if (!fromAccountId || !toAccountId || !transferAmount) {
-        return res.status(400).json({ errorMessage: "fromAccountId, toAccountId, and transferAmount are required fields" })
-    }
-    try {
-        const results = await transferService.accountTransfer(fromAccountId, toAccountId, transferAmount)
-        return res.status(201).json(results)
-    } catch (error) {
-        if (error.message === "Source account does not exist" || error.message === "Destination account does not exist") {
-            return res.status(404).json({ errorMessage: error.message })
-        }
-        return res.status(400).json({ errorMessage: error.message })
-    }
-})
-
-router.get('/transfer-history/:accountId', async (req, res) => {
-    const { accountId } = req.params
-
-    if (!accountId) {
+    if (!id) {
         return res.status(400).json({ errorMessage: "accountId is required" })
     }
 
     try {
-        const accountIdNum = parseInt(accountId)
+        const accountIdNum = parseInt(id)
         if (isNaN(accountIdNum)) {
             return res.status(400).json({ errorMessage: "accountId must be a valid number" })
         }

@@ -1,13 +1,15 @@
 const request = require('supertest');
 const express = require('express');
 const accountRoutes = require('../../src/routes/account');
+const transferRoutes = require('../../src/routes/transfer');
 const prisma = require('../../src/db/client');
 const accountService = require('../../src/services/accountService');
 const authService = require('../../src/services/authService');
 
 const app = express();
 app.use(express.json());
-app.use('/api/account', accountRoutes);
+app.use('/api/accounts', accountRoutes);
+app.use('/api/transfers', transferRoutes);
 
 describe('Account Routes', () => {
   let customerId;
@@ -26,14 +28,14 @@ describe('Account Routes', () => {
     authToken = loginResult.token;
   });
 
-  describe('POST /api/account/createaccount', () => {
+  describe('POST /api/accounts', () => {
     test('should return 401 when no authentication token provided', async () => {
       // Get a valid customerId for this test
       const customer = await prisma.customer.findFirst();
       const testCustomerId = customer ? customer.id : customerId;
       
       const response = await request(app)
-        .put('/api/account/createaccount')
+        .post('/api/accounts')
         .send({
           customerId: testCustomerId,
           initialDeposit: 1000
@@ -45,7 +47,7 @@ describe('Account Routes', () => {
 
     test('should create account with valid data', async () => {
       const response = await request(app)
-        .put('/api/account/createaccount')
+        .post('/api/accounts')
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           customerId,
@@ -60,7 +62,7 @@ describe('Account Routes', () => {
 
     test('should return 400 when customerId is missing', async () => {
       const response = await request(app)
-        .put('/api/account/createaccount')
+        .post('/api/accounts')
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           initialDeposit: 1000
@@ -72,7 +74,7 @@ describe('Account Routes', () => {
 
     test('should return 400 when initialDeposit is missing', async () => {
       const response = await request(app)
-        .put('/api/account/createaccount')
+        .post('/api/accounts')
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           customerId
@@ -84,7 +86,7 @@ describe('Account Routes', () => {
 
     test('should return 404 when customer does not exist', async () => {
       const response = await request(app)
-        .put('/api/account/createaccount')
+        .post('/api/accounts')
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           customerId: 99999,
@@ -97,7 +99,7 @@ describe('Account Routes', () => {
 
     test('should return 400 when initialDeposit is invalid', async () => {
       const response = await request(app)
-        .put('/api/account/createaccount')
+        .post('/api/accounts')
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           customerId,
@@ -108,7 +110,7 @@ describe('Account Routes', () => {
     });
   });
 
-  describe('POST /api/account/getbalance', () => {
+  describe('GET /api/accounts/:id', () => {
     beforeEach(async () => {
       const account = await accountService.createAccount(customerId, 500);
       accountId = account.id;
@@ -116,41 +118,34 @@ describe('Account Routes', () => {
 
     test('should return balance for valid account', async () => {
       const response = await request(app)
-        .post('/api/account/getbalance')
+        .get(`/api/accounts/${accountId}`)
         .set('Authorization', `Bearer ${authToken}`)
-        .send({
-          accountId
-        });
 
       expect(response.status).toBe(200);
       expect(response.body.accountId).toBe(accountId);
       expect(response.body.balance).toBe(500);
     });
 
-    test('should return 400 when accountId is missing', async () => {
+    test('should return 400 when accountId is invalid', async () => {
       const response = await request(app)
-        .post('/api/account/getbalance')
+        .get('/api/accounts/invalid')
         .set('Authorization', `Bearer ${authToken}`)
-        .send({});
 
       expect(response.status).toBe(400);
-      expect(response.body.errorMessage).toContain('required');
+      expect(response.body.errorMessage).toContain('valid number');
     });
 
     test('should return 404 when account does not exist', async () => {
       const response = await request(app)
-        .post('/api/account/getbalance')
+        .get('/api/accounts/99999')
         .set('Authorization', `Bearer ${authToken}`)
-        .send({
-          accountId: 99999
-        });
 
       expect(response.status).toBe(404);
       expect(response.body.errorMessage).toBe('Account not found');
     });
   });
 
-  describe('PUT /api/account/transfer', () => {
+  describe('POST /api/transfers', () => {
     let fromAccountId;
     let toAccountId;
 
@@ -163,12 +158,12 @@ describe('Account Routes', () => {
 
     test('should transfer funds successfully', async () => {
       const response = await request(app)
-        .put('/api/account/transfer')
+        .post('/api/transfers')
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           fromAccountId,
           toAccountId,
-          transferAmount: 250
+          amount: 250
         });
 
       expect(response.status).toBe(201);
@@ -178,7 +173,7 @@ describe('Account Routes', () => {
 
     test('should return 400 when required fields are missing', async () => {
       const response = await request(app)
-        .put('/api/account/transfer')
+        .post('/api/transfers')
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           fromAccountId,
@@ -191,12 +186,12 @@ describe('Account Routes', () => {
 
     test('should return 404 when source account does not exist', async () => {
       const response = await request(app)
-        .put('/api/account/transfer')
+        .post('/api/transfers')
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           fromAccountId: 99999,
           toAccountId,
-          transferAmount: 100
+          amount: 100
         });
 
       expect(response.status).toBe(404);
@@ -204,12 +199,12 @@ describe('Account Routes', () => {
 
     test('should return 400 when insufficient funds', async () => {
       const response = await request(app)
-        .put('/api/account/transfer')
+        .post('/api/transfers')
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           fromAccountId,
           toAccountId,
-          transferAmount: 2000
+          amount: 2000
         });
 
       expect(response.status).toBe(400);
@@ -217,7 +212,7 @@ describe('Account Routes', () => {
     });
   });
 
-  describe('GET /api/account/transfer-history/:accountId', () => {
+  describe('GET /api/accounts/:id/transfers', () => {
     let accountId;
 
     beforeEach(async () => {
@@ -232,7 +227,7 @@ describe('Account Routes', () => {
       await transferService.accountTransfer(accountId, account2.id, 100);
 
       const response = await request(app)
-        .get(`/api/account/transfer-history/${accountId}`)
+        .get(`/api/accounts/${accountId}/transfers`)
         .set('Authorization', `Bearer ${authToken}`);
 
       expect(response.status).toBe(200);
@@ -242,7 +237,7 @@ describe('Account Routes', () => {
 
     test('should return 400 when accountId is not a number', async () => {
       const response = await request(app)
-        .get('/api/account/transfer-history/abc')
+        .get('/api/accounts/abc/transfers')
         .set('Authorization', `Bearer ${authToken}`);
 
       expect(response.status).toBe(400);
@@ -251,7 +246,7 @@ describe('Account Routes', () => {
 
     test('should return 404 when account does not exist', async () => {
       const response = await request(app)
-        .get('/api/account/transfer-history/99999')
+        .get('/api/accounts/99999/transfers')
         .set('Authorization', `Bearer ${authToken}`);
 
       expect(response.status).toBe(404);

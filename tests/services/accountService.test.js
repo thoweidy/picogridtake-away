@@ -12,7 +12,7 @@ describe('Account Service', () => {
 
   describe('createAccount', () => {
     test('should create account with valid customer and initial deposit', async () => {
-      const initialDeposit = 1000.50;
+      const initialDeposit = 0.1;
       
       const account = await accountService.createAccount(customerId, initialDeposit);
 
